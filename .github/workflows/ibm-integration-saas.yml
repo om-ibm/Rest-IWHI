@@ -84,7 +84,7 @@ jobs:
           echo "# Acquiring token using API key"
           echo "########################################################################" && echo
 
-          curl -s --fail-with-body --request POST \
+          curl -v -s --fail-with-body --request POST \
             --url https://${APPCON_ENDPOINT}/api/v1/tokens \
             --header "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" \
             --header "X-IBM-Client-Secret: ${APPCON_CLIENT_SECRET}" \
