@@ -1,0 +1,101 @@
+name: Deploy ACE Project to ACEaaS Cloud
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  BAR_NAME: OpenScaleIntegrationApp.bar
+  PROJECT_DIR: Output1
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build BAR File and Deploy to ACEaaS
+        uses: addnab/docker-run-action@v3
+        with:
+          image: registry.redhat.io/appconnect/appconnect-enterprise-runtime-rhel9:13.0.4.0-r1
+          options: >-
+            --user 0
+            -v ${{ github.workspace }}:/workspace
+            -e APPCON_ENDPOINT=${{ vars.APPCON_ENDPOINT }}
+            -e APPCON_INSTANCE_ID=${{ secrets.APPCON_INSTANCE_ID }}
+            -e APPCON_CLIENT_ID=${{ secrets.APPCON_CLIENT_ID }}
+            -e APPCON_CLIENT_SECRET=${{ secrets.APPCON_CLIENT_SECRET }}
+            -e APPCON_API_KEY=${{ secrets.APPCON_API_KEY }}
+            -e APPCON_DEPLOY_PREFIX=${{ vars.APPCON_DEPLOY_PREFIX }}
+            -e BAR_NAME=OpenScaleIntegrationApp.bar
+            -e PROJECT_DIR=Output1
+          run: |
+            set -e
+            echo "=== Initializing ACE 13 Environment ==="
+            . /opt/ibm/ace-13/server/bin/mqsiprofile
+
+            cd /workspace
+
+            echo "=== Packaging BAR File with ibmint ==="
+            ibmint package --input-path ./$PROJECT_DIR --output-bar-file ./$BAR_NAME --compile-maps-and-schemas
+
+            echo "=== Preparing Deployment to ACEaaS ==="
+            # Unset LD_LIBRARY_PATH before invoking curl to prevent library collision
+            unset LD_LIBRARY_PATH
+
+            TOKEN_FILE="/tmp/aceaas_token.json"
+            trap 'rm -f "$TOKEN_FILE"' EXIT
+
+            echo "=== Requesting Bearer Token from ACEaaS ==="
+            HTTP_AUTH_STATUS=$(curl -s -o "$TOKEN_FILE" -w "%{http_code}" \
+              -X POST "https://${APPCON_ENDPOINT}/api/v1/tokens" \
+              -H "Content-Type: application/json" \
+              -d "{\"clientId\":\"${APPCON_CLIENT_ID}\",\"clientSecret\":\"${APPCON_CLIENT_SECRET}\",\"apiKey\":\"${APPCON_API_KEY}\"}")
+
+            if [ "$HTTP_AUTH_STATUS" -ne 200 ] && [ "$HTTP_AUTH_STATUS" -ne 201 ]; then
+              echo "Error: Token generation failed with status code ${HTTP_AUTH_STATUS}"
+              exit 1
+            fi
+
+            BEARER_TOKEN=$(grep -o '"token":"[^"]*' "$TOKEN_FILE" | grep -o '[^"]*$')
+
+            if [ -z "$BEARER_TOKEN" ]; then
+              echo "Error: Failed to parse Bearer token from response"
+              exit 1
+            fi
+
+            echo "=== Uploading BAR File to ACEaaS ==="
+            BAR_UPLOAD_FILE="/tmp/bar_upload_resp.json"
+            HTTP_BAR_STATUS=$(curl -s -o "$BAR_UPLOAD_FILE" -w "%{http_code}" \
+              -X PUT "https://${APPCON_ENDPOINT}/api/v1/bar-files/${BAR_NAME}" \
+              -H "Authorization: Bearer ${BEARER_TOKEN}" \
+              -H "Content-Type: application/octet-stream" \
+              --data-binary "@./${BAR_NAME}")
+
+            if [ "$HTTP_BAR_STATUS" -ne 200 ] && [ "$HTTP_BAR_STATUS" -ne 201 ]; then
+              echo "Error: BAR file upload failed with status code ${HTTP_BAR_STATUS}"
+              rm -f "$BAR_UPLOAD_FILE"
+              exit 1
+            fi
+            rm -f "$BAR_UPLOAD_FILE"
+
+            RUNTIME_NAME="${APPCON_DEPLOY_PREFIX}-runtime"
+            echo "=== Deploying Integration Runtime (${RUNTIME_NAME}) ==="
+            RUNTIME_RESP_FILE="/tmp/runtime_resp.json"
+            HTTP_RUNTIME_STATUS=$(curl -s -o "$RUNTIME_RESP_FILE" -w "%{http_code}" \
+              -X PUT "https://${APPCON_ENDPOINT}/api/v1/integration-runtimes/${RUNTIME_NAME}" \
+              -H "Authorization: Bearer ${BEARER_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d "{\"name\":\"${RUNTIME_NAME}\",\"barFile\":\"${BAR_NAME}\",\"replicas\":1,\"version\":\"13.0.4.0-r1\"}")
+
+            if [ "$HTTP_RUNTIME_STATUS" -ne 200 ] && [ "$HTTP_RUNTIME_STATUS" -ne 201 ]; then
+              echo "Error: IntegrationRuntime update failed with status code ${HTTP_RUNTIME_STATUS}"
+              rm -f "$RUNTIME_RESP_FILE"
+              exit 1
+            fi
+            rm -f "$RUNTIME_RESP_FILE"
+
+            echo "=== Deployment to ACEaaS completed successfully ==="
