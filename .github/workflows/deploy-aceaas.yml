@@ -20,7 +20,7 @@ jobs:
       - name: Build BAR File and Deploy to ACEaaS
         uses: addnab/docker-run-action@v3
         with:
-          image: registry.redhat.io/appconnect/appconnect-enterprise-runtime-rhel9:13.0.4.0-r1
+          image: tdolby/experimental:ace-minimal-13.0.4.0-alpine
           options: >-
             --user 0
             -v ${{ github.workspace }}:/workspace
