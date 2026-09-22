@@ -78,6 +78,8 @@ jobs:
 
           set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
 
+          set -x # Debugging
+
           echo "########################################################################"
           echo "# Acquiring token using API key"
           echo "########################################################################" && echo
