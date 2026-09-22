@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<mappingRoot xmlns="http://www.ibm.com/2008/ccl/Mapping" xmlns:map="default" xmlns:openscale="http://openscale.ibm.com/schema" xmlns:traditionalml="http://openscale.ibm.com/traditionalml" domainID="com.ibm.msl.mapping.json" domainIDExtension="mb" mainMap="true" targetNamespace="default" version="8.0.5.0">
+    <input path="/traditionalml_source_schema.xsd"/>
+    <output path="/openscale_schema.xsd"/>
+    <generation engine="xquery"/>
+    <mappingDeclaration name="OpenScale_TraditionalML_Mapping">
+        <input path="mb:msg(traditionalml:TraditionalMLSource,assembly,JSON,Properties)" var="ComIbmMessageAssembly_TraditionalMLSource"/>
+        <output path="mb:msg(openscale:OpenScalePayload,assembly,JSON,Properties)" var="ComIbmMessageAssembly_OpenScale"/>
+        <move>
+            <input path="$ComIbmMessageAssembly_TraditionalMLSource/Properties"/>
+            <output path="$ComIbmMessageAssembly_OpenScale/Properties"/>
+        </move>
+        <!-- Map scoring_id from transactionid -->
+        <move>
+            <input path="$ComIbmMessageAssembly_TraditionalMLSource/JSON/Data/data/transactionid"/>
+            <output path="$ComIbmMessageAssembly_OpenScale/JSON/Data/scoring_id"/>
+        </move>
+        <!-- Map response_time -->
+        <move>
+            <input path="$ComIbmMessageAssembly_TraditionalMLSource/JSON/Data/data/response_time"/>
+            <output path="$ComIbmMessageAssembly_OpenScale/JSON/Data/response_time"/>
+        </move>
+        <!-- Static constants -->
+        <assign value="v1.0.0">
+            <output path="$ComIbmMessageAssembly_OpenScale/JSON/Data/asset_revision"/>
+        </assign>
+        <assign value="false">
+            <output path="$ComIbmMessageAssembly_OpenScale/JSON/Data/multiple_records"/>
+        </assign>
+    </mappingDeclaration>
+</mappingRoot>

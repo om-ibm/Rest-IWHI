@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<mappingRoot xmlns="http://www.ibm.com/2008/ccl/Mapping" xmlns:genai="http://openscale.ibm.com/genai" xmlns:map="default" xmlns:openscale="http://openscale.ibm.com/schema" domainID="com.ibm.msl.mapping.json" domainIDExtension="mb" mainMap="true" targetNamespace="default" version="8.0.5.0">
+    <input path="/genai_source_schema.xsd"/>
+    <output path="/openscale_schema.xsd"/>
+    <generation engine="xquery"/>
+    <mappingDeclaration name="OpenScale_GenAI_Mapping">
+        <input path="mb:msg(genai:GenAISource,assembly,JSON,Properties)" var="ComIbmMessageAssembly_GenAISource"/>
+        <output path="mb:msg(openscale:OpenScalePayload,assembly,JSON,Properties)" var="ComIbmMessageAssembly_OpenScale"/>
+        <move>
+            <input path="$ComIbmMessageAssembly_GenAISource/Properties"/>
+            <output path="$ComIbmMessageAssembly_OpenScale/Properties"/>
+        </move>
+        <!-- Map scoring_id from transactionid -->
+        <move>
+            <input path="$ComIbmMessageAssembly_GenAISource/JSON/Data/data/transactionid"/>
+            <output path="$ComIbmMessageAssembly_OpenScale/JSON/Data/scoring_id"/>
+        </move>
+        <!-- Map response_time -->
+        <move>
+            <input path="$ComIbmMessageAssembly_GenAISource/JSON/Data/data/response_time"/>
+            <output path="$ComIbmMessageAssembly_OpenScale/JSON/Data/response_time"/>
+        </move>
+        <!-- Map user_id from x-request-id header -->
+        <move>
+            <input path="$ComIbmMessageAssembly_GenAISource/JSON/Data/data/request_headers/x-request-id"/>
+            <output path="$ComIbmMessageAssembly_OpenScale/JSON/Data/user_id"/>
+        </move>
+        <!-- Map input_tokens -->
+        <move>
+            <input path="$ComIbmMessageAssembly_GenAISource/JSON/Data/data/response/usage/prompt_tokens"/>
+            <output path="$ComIbmMessageAssembly_OpenScale/JSON/Data/input_tokens"/>
+        </move>
+        <!-- Map output_tokens using arithmetic sum of completion_tokens and reasoning_tokens -->
+        <custom-transform>
+            <input path="$ComIbmMessageAssembly_GenAISource/JSON/Data/data/response/usage/completion_tokens"/>
+            <input path="$ComIbmMessageAssembly_GenAISource/JSON/Data/data/response/usage/completion_tokens_details/reasoning_tokens"/>
+            <output path="$ComIbmMessageAssembly_OpenScale/JSON/Data/output_tokens"/>
+            <code>
+                xs:int(fn:sum(($ComIbmMessageAssembly_GenAISource/JSON/Data/data/response/usage/completion_tokens, $ComIbmMessageAssembly_GenAISource/JSON/Data/data/response/usage/completion_tokens_details/reasoning_tokens)))
+            </code>
+        </custom-transform>
+        <!-- Static constants -->
+        <assign value="v1.0.0">
+            <output path="$ComIbmMessageAssembly_OpenScale/JSON/Data/asset_revision"/>
+        </assign>
+        <assign value="false">
+            <output path="$ComIbmMessageAssembly_OpenScale/JSON/Data/multiple_records"/>
+        </assign>
+    </mappingDeclaration>
+</mappingRoot>

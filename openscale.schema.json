@@ -1,0 +1,107 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://openscale.ibm.com/schema/openscale-schema.json",
+  "title": "OpenScalePayload",
+  "description": "Target payload schema for IBM Watson OpenScale model scoring records",
+  "type": "object",
+  "required": [
+    "request",
+    "response",
+    "scoring_id",
+    "scoring_timestamp",
+    "response_time",
+    "asset_revision",
+    "multiple_records",
+    "user_id"
+  ],
+  "properties": {
+    "request": {
+      "type": "object",
+      "required": [
+        "fields",
+        "values"
+      ],
+      "properties": {
+        "fields": {
+          "type": "array",
+          "description": "List of input feature / prompt field names",
+          "items": {
+            "type": "string"
+          }
+        },
+        "values": {
+          "type": "array",
+          "description": "Matrix of input records corresponding to fields",
+          "items": {
+            "type": "array",
+            "items": {}
+          }
+        }
+      }
+    },
+    "response": {
+      "type": "object",
+      "required": [
+        "fields",
+        "values"
+      ],
+      "properties": {
+        "fields": {
+          "type": "array",
+          "description": "List of output prediction / response field names",
+          "items": {
+            "type": "string"
+          }
+        },
+        "values": {
+          "type": "array",
+          "description": "Matrix of output predictions corresponding to fields",
+          "items": {
+            "type": "array",
+            "items": {}
+          }
+        }
+      }
+    },
+    "scoring_id": {
+      "type": "string",
+      "description": "Unique transaction or scoring event identifier"
+    },
+    "scoring_timestamp": {
+      "type": "string",
+      "description": "ISO-8601 UTC timestamp of scoring event"
+    },
+    "response_time": {
+      "type": "integer",
+      "description": "Inference / round-trip response duration in milliseconds"
+    },
+    "asset_revision": {
+      "type": "string",
+      "default": "v1.0.0",
+      "description": "Model or prompt template revision tag"
+    },
+    "multiple_records": {
+      "type": "boolean",
+      "default": false,
+      "description": "Indicates if batch scoring contains multiple records"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Caller or end-user identifier"
+    },
+    "input_tokens": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "Count of prompt tokens (Gen AI only)"
+    },
+    "output_tokens": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "Count of completion and reasoning tokens (Gen AI only)"
+    }
+  }
+}
