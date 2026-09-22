@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://openscale.ibm.com/schema/traditionalml-source.schema.json",
+  "title": "TraditionalMLSourceModel",
+  "description": "Message model for Traditional Machine Learning tabular inference payloads",
+  "type": "object",
+  "required": [
+    "message_id",
+    "data"
+  ],
+  "properties": {
+    "message_id": {
+      "type": "string"
+    },
+    "data": {
+      "type": "object",
+      "required": [
+        "transactionid",
+        "response_time_stamp",
+        "response_time",
+        "request",
+        "response"
+      ],
+      "properties": {
+        "transactionid": {
+          "type": "string"
+        },
+        "response_time_stamp": {
+          "type": "integer"
+        },
+        "response_time": {
+          "type": "integer"
+        },
+        "request": {
+          "type": "object",
+          "properties": {
+            "instances": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "signature_name": {
+              "type": "string"
+            }
+          }
+        },
+        "response": {
+          "type": "object",
+          "properties": {
+            "predictions": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "attributes": {
+      "type": "object",
+      "properties": {
+        "sub_topic": {
+          "type": "string"
+        }
+      }
+    },
+    "publish_time": {
+      "type": "string"
+    },
+    "ack_id": {
+      "type": "string"
+    }
+  }
+}
