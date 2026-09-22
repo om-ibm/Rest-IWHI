@@ -22,11 +22,11 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      - name: Deploy TeaGetIndex and TeaPostIndex
+      - name: Deploy RESTCall
         shell: bash
         env:
           X_INSTANCE_API_KEY:    ${{ secrets.IWHI_X_INSTANCE_API_KEY }}
           IWHI_WM_HOSTNAME:      ${{ vars.IWHI_WM_HOSTNAME }}
         run: |
           echo "Deploying ACEDemoTeaAPI"
-          curl -sq --fail-with-body -X POST -F "project=@extensions/iwhi/ACEDemoTeaAPI-export.zip" -H "X-INSTANCE-API-KEY: ${X_INSTANCE_API_KEY}" https://${IWHI_WM_HOSTNAME}/apis/v1/rest/project-import
+          curl -sq --fail-with-body -X POST -F "project=@extensions/iwhi/RESTCall.zip" -H "X-INSTANCE-API-KEY: ${X_INSTANCE_API_KEY}" https://${IWHI_WM_HOSTNAME}/apis/v1/rest/project-import
