@@ -21,7 +21,7 @@ jobs:
         LICENSE: accept
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
           
       - name: Build the application
         shell: bash
@@ -41,7 +41,7 @@ jobs:
           # No unit tests yet for this project
 
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: RESTCall.bar
           path: RESTCall.bar
@@ -53,7 +53,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # 2. Download the artifact to the new runner
       - name: Download Build Artifact
