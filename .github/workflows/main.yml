@@ -40,18 +40,18 @@ jobs:
           echo Building application
           echo ========================================================================
           # Using --compile-maps-and-schemas for 13.0.1 and later . . . 
-          ibmint package --input-path . --output-bar-file $PWD/tea-application-combined.bar --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --project TeaCallableApplicationV2 --compile-maps-and-schemas 
+          ibmint package --input-path . --output-bar-file $PWD/RESTCall.bar --project RESTCall --compile-maps-and-schemas 
 
           echo ========================================================================
           echo Building unit tests
           echo ========================================================================
           # Create the unit test work directory
           mqsicreateworkdir /tmp/test-work-dir
-          mqsibar -w /tmp/test-work-dir -a $PWD/tea-application-combined.bar 
+          mqsibar -w /tmp/test-work-dir -a $PWD/RESTCall.bar 
           # Build just the unit tests
-          ibmint deploy --input-path . --output-work-directory /tmp/test-work-dir --project TeaRESTApplication_UnitTest
+          ibmint deploy --input-path . --output-work-directory /tmp/test-work-dir --project RESTCall_UnitTest
 
           echo ========================================================================
           echo Running unit tests
           echo ========================================================================
-          IntegrationServer -w /tmp/test-work-dir --no-nodejs --start-msgflows false --test-project TeaRESTApplication_UnitTest --test-junit-options --reports-dir=junit-reports
+          IntegrationServer -w /tmp/test-work-dir --no-nodejs --start-msgflows false --test-project RESTCall_UnitTest --test-junit-options --reports-dir=junit-reports
