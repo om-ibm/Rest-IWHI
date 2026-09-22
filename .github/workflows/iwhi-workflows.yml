@@ -28,5 +28,5 @@ jobs:
           X_INSTANCE_API_KEY:    ${{ secrets.IWHI_X_INSTANCE_API_KEY }}
           IWHI_WM_HOSTNAME:      ${{ vars.IWHI_WM_HOSTNAME }}
         run: |
-          echo "Deploying ACEDemoTeaAPI"
+          echo "Deploying RESTCallAPI
           curl -sq --fail-with-body -X POST -F "project=@extensions/iwhi/RESTCall.zip" -H "X-INSTANCE-API-KEY: ${X_INSTANCE_API_KEY}" https://${IWHI_WM_HOSTNAME}/apis/v1/rest/project-import
