@@ -1,0 +1,135 @@
+{
+  "schema": {
+    "targetNamespace": "http://openscale.ibm.com/schema",
+    "elementFormDefault": "qualified",
+    "attributeFormDefault": null,
+    "version": null,
+    "namespaces": {
+      "xsd": "http://www.w3.org/2001/XMLSchema",
+      "tns": "http://openscale.ibm.com/schema"
+    },
+    "elements": [
+      {
+        "kind": "element",
+        "name": "OpenScalePayload",
+        "type": "tns:OpenScalePayloadType"
+      }
+    ],
+    "complexTypes": [
+      {
+        "kind": "complexType",
+        "name": "OpenScalePayloadType",
+        "particles": [
+          {
+            "kind": "sequence",
+            "items": [
+              {
+                "kind": "element",
+                "name": "request",
+                "type": "tns:PayloadStructureType",
+                "minOccurs": "1",
+                "maxOccurs": "unbounded"
+              },
+              {
+                "kind": "element",
+                "name": "response",
+                "type": "tns:PayloadStructureType",
+                "minOccurs": "1",
+                "maxOccurs": "unbounded"
+              },
+              {
+                "kind": "element",
+                "name": "scoring_id",
+                "type": "xsd:string"
+              },
+              {
+                "kind": "element",
+                "name": "scoring_timestamp",
+                "type": "xsd:string"
+              },
+              {
+                "kind": "element",
+                "name": "response_time",
+                "type": "xsd:int"
+              },
+              {
+                "kind": "element",
+                "name": "asset_revision",
+                "type": "xsd:string",
+                "default": "v1.0.0"
+              },
+              {
+                "kind": "element",
+                "name": "multiple_records",
+                "type": "xsd:boolean",
+                "default": "false"
+              },
+              {
+                "kind": "element",
+                "name": "user_id",
+                "type": "xsd:string"
+              },
+              {
+                "kind": "element",
+                "name": "input_tokens",
+                "type": "xsd:int",
+                "nillable": "true",
+                "minOccurs": "0"
+              },
+              {
+                "kind": "element",
+                "name": "output_tokens",
+                "type": "xsd:int",
+                "nillable": "true",
+                "minOccurs": "0"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "complexType",
+        "name": "PayloadStructureType",
+        "particles": [
+          {
+            "kind": "sequence",
+            "items": [
+              {
+                "kind": "element",
+                "name": "fields",
+                "type": "xsd:string",
+                "minOccurs": "0",
+                "maxOccurs": "unbounded"
+              },
+              {
+                "kind": "element",
+                "name": "values",
+                "type": "tns:ValuesRowType",
+                "minOccurs": "0",
+                "maxOccurs": "unbounded"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "complexType",
+        "name": "ValuesRowType",
+        "particles": [
+          {
+            "kind": "sequence",
+            "items": [
+              {
+                "kind": "element",
+                "name": "item",
+                "type": "xsd:anySimpleType",
+                "minOccurs": "0",
+                "maxOccurs": "unbounded"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
