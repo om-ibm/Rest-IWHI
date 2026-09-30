@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://openscale.ibm.com/schema" xmlns:tns="http://openscale.ibm.com/schema" elementFormDefault="qualified">
+
+  <xsd:element name="OpenScalePayload" type="tns:OpenScalePayloadType"/>
+
+  <xsd:complexType name="OpenScalePayloadType">
+    <xsd:sequence>
+      <xsd:element name="request" type="tns:PayloadStructureType" minOccurs="1" maxOccurs="unbounded"/>
+      <xsd:element name="response" type="tns:PayloadStructureType" minOccurs="1" maxOccurs="unbounded"/>
+      <xsd:element name="scoring_id" type="xsd:string"/>
+      <xsd:element name="scoring_timestamp" type="xsd:string"/>
+      <xsd:element name="response_time" type="xsd:int"/>
+      <xsd:element name="asset_revision" type="xsd:string" default="v1.0.0"/>
+      <xsd:element name="multiple_records" type="xsd:boolean" default="false"/>
+      <xsd:element name="user_id" type="xsd:string"/>
+      <xsd:element name="input_tokens" type="xsd:int" minOccurs="0" nillable="true"/>
+      <xsd:element name="output_tokens" type="xsd:int" minOccurs="0" nillable="true"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="PayloadStructureType">
+    <xsd:sequence>
+      <xsd:element name="fields" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="values" type="tns:ValuesRowType" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="ValuesRowType">
+    <xsd:sequence>
+      <xsd:element name="item" type="xsd:anySimpleType" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+</xsd:schema>

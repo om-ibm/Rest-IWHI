@@ -1,0 +1,62 @@
+{
+  "request": {
+    "fields": [
+      "COUNTY_NAME",
+      "DELV_DOW",
+      "MSA_CD",
+      "POSTAL_CLASS",
+      "SERVICE_COMMIT_TYPE",
+      "SERVICE_TYPE_DESC",
+      "STOP_COMMERCIAL_IND",
+      "Zip8M_Avg1",
+      "Zip8M_Avg2",
+      "Zip8W_Avg1",
+      "Zip8W_Avg2",
+      "Zip8W_Delta",
+      "Zip9M_Avg1",
+      "Zip9M_Avg2",
+      "Zip9W_Avg1",
+      "Zip9W_Avg2",
+      "Zip9W_Delta"
+    ],
+    "values": [
+      [
+        "ANNE ARUNDEL",
+        "FRI",
+        "0720",
+        "Urban",
+        "0",
+        "GROUND",
+        "1",
+        13.7786,
+        11.40462,
+        13.7786,
+        12.3497,
+        10.3704295,
+        13.7786,
+        11.40462,
+        13.7786,
+        12.3497,
+        10.3704295
+      ]
+    ]
+  },
+  "response": {
+    "fields": [
+      "prediction"
+    ],
+    "values": [
+      [
+        12.7991362
+      ]
+    ]
+  },
+  "scoring_id": "1780599053286330",
+  "scoring_timestamp": "2026-06-04T18:50:53.285Z",
+  "response_time": 31,
+  "asset_revision": "v1.0.0",
+  "multiple_records": false,
+  "user_id": "19660466846131556",
+  "input_tokens": null,
+  "output_tokens": null
+}
