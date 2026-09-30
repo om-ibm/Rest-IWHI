@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<mappingRoot xmlns="http://www.ibm.com/2008/ccl/Mapping" xmlns:map="default" domainID="com.ibm.msl.mapping.xml" domainIDExtension="mb" mainMap="true" targetNamespace="default" version="8.0.5.0">
+    <input path="jar:file://!com/ibm/etools/mft/map/xsds/predefined/JsonDomainMsg.xsd" var="var3"/>
+    <input derivedFrom="MB:JSON_schema_in_json_file" path="/genai_source.schema.json" var="var2"/>
+    <output path="/openscale_schema.xsd"/>
+    <imports>
+        <import kind="esql" namespace="/ConvertEpochToIsoUtc.esql"/>
+    </imports>
+    <namespaces>
+        <namespace kind="supplement" prefix="in" uri="http://www.ibm.com/iib/msl/json"/>
+        <namespace kind="supplement" prefix="out" uri="http://openscale.ibm.com/schema"/>
+        <namespace kind="extension" prefix="fn" uri="http://www.w3.org/2005/xpath-functions"/>
+        <namespace kind="extension" prefix="ConvertEpochToIsoUtc" uri="/ConvertEpochToIsoUtc.esql"/>
+    </namespaces>
+    <generation engine="xquery"/>
+    <mappingDeclaration name="OpenScale_GenAI_Mapping">
+        <input namespace="http://www.ibm.com/iib/msl/json" path="$var3/mb:msg(JSON,assembly,JSON,Properties)">
+            <cast derivedFrom="MB:JSON_TYPE" path="JSON/Data/type('anyType')" qualifier="{http://www.ibm.com/iib/msl/json}genai_source.schema_JsonType" ref="var2"/>
+        </input>
+        <output namespace="http://openscale.ibm.com/schema" path="mb:msg(OpenScalePayload,assembly,XMLNSC,Properties)" var="ComIbmMessageAssembly_OpenScalePayload"/>
+        <assign value="prompt">
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/request/fields[1]"/>
+        </assign>
+        <assign value="context">
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/request/fields[2]"/>
+        </assign>
+        <assign value="user_query">
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/request/fields[3]"/>
+        </assign>
+        <move>
+            <input path="JSON/spath('Data',2)/data/request/messages/Item/content" var="content"/>
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/request/values[1]/item[1]"/>
+        </move>
+        <move>
+            <input path="JSON/spath('Data',2)/data/request/tools/Item/function/description" var="description"/>
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/request/values[1]/item[2]"/>
+        </move>
+        <move>
+            <input path="JSON/spath('Data',2)/data/request/messages/Item/content" var="content1"/>
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/request/values[1]/item[3]"/>
+        </move>
+        <assign value="response">
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/response/fields[1]"/>
+        </assign>
+        <move>
+            <input path="JSON/spath('Data',2)/data/response/choices/Item/message/content" var="content2"/>
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/response/values[1]/item[1]"/>
+        </move>
+        <move>
+            <input path="JSON/spath('Data',2)/data/response_time" var="response_time"/>
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/response_time"/>
+        </move>
+        <assign value="v1.0.0">
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/asset_revision"/>
+        </assign>
+        <assign value="false">
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/multiple_records"/>
+        </assign>
+        <function ref="fn:sum">
+            <input path="JSON/spath('Data',2)/data/response/usage/completion_tokens" var="completion_tokens"/>
+            <input path="JSON/spath('Data',2)/data/response/usage/completion_tokens_details/reasoning_tokens" var="reasoning_tokens"/>
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/output_tokens"/>
+            <param name="arg" value="$completion_tokens"/>
+            <param name="zero" value="$reasoning_tokens"/>
+        </function>
+        <move>
+            <input path="JSON/spath('Data',2)/data/response/usage/prompt_tokens"/>
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/input_tokens"/>
+        </move>
+        <move>
+            <input path="JSON/spath('Data',2)/data/request_headers/x-request-id"/>
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/user_id"/>
+        </move>
+        <move>
+            <input path="JSON/spath('Data',2)/data/transactionid"/>
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/scoring_id"/>
+        </move>
+        <customFunction lang="esql" ref="ConvertEpochToIsoUtc:ConvertEpochToIsoUtc">
+            <input path="JSON/spath('Data',2)/data/response_time_stamp" var="response_time_stamp2"/>
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/scoring_timestamp"/>
+            <param name="epochMillis" value="$response_time_stamp2"/>
+        </customFunction>
+    </mappingDeclaration>
+</mappingRoot>

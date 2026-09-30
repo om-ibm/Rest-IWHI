@@ -1,0 +1,19 @@
+CREATE FUNCTION ExtractInstanceFields(
+    IN  inMsg   REFERENCE,          -- reference to InputRoot
+    OUT fields  CHARACTER,          -- comma-separated field names (example)
+    OUT vals    CHARACTER            -- comma-separated values (example)
+)
+BEGIN
+    DECLARE fieldRef REFERENCE TO inMsg.JSON.Data.data.request.instances.Item[1];
+    -- Move to the first child of Item[1]
+    MOVE fieldRef FIRSTCHILD;
+
+    WHILE LASTMOVE(fieldRef) DO
+        -- FIELDNAME() on a REFERENCE gives the element's key name
+        SET fields = fields || FIELDNAME(fieldRef) || ',';
+        -- FIELDVALUE() on a REFERENCE gives the element's value
+        SET vals   = vals   || CAST(FIELDVALUE(fieldRef) AS CHARACTER) || ',';
+        MOVE fieldRef NEXTSIBLING;
+    END WHILE;
+    
+END;
