@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<mappingRoot xmlns="http://www.ibm.com/2008/ccl/Mapping" xmlns:map="default" domainID="com.ibm.msl.mapping.xml" domainIDExtension="mb" mainMap="true" targetNamespace="default" version="8.0.5.0">
+    <input path="jar:file://!com/ibm/etools/mft/map/xsds/predefined/JsonDomainMsg.xsd" var="var2"/>
+    <input derivedFrom="MB:JSON_schema_in_json_file" path="/traditionalml_source.schema.json" var="var1"/>
+    <output path="/openscale_schema.xsd"/>
+    <imports>
+        <import kind="esql" namespace="/ConvertEpochToIsoUtc.esql"/>
+        <import kind="esql" namespace="/getFieldName.esql"/>
+        <import kind="esql" namespace="/getFieldValue.esql"/>
+    </imports>
+    <namespaces>
+        <namespace kind="supplement" prefix="in" uri="http://www.ibm.com/iib/msl/json"/>
+        <namespace kind="supplement" prefix="out" uri="http://openscale.ibm.com/schema"/>
+        <namespace kind="extension" prefix="fn" uri="http://www.w3.org/2005/xpath-functions"/>
+        <namespace kind="extension" prefix="ConvertEpochToIsoUtc" uri="/ConvertEpochToIsoUtc.esql"/>
+        <namespace kind="extension" prefix="xs" uri="http://www.w3.org/2001/XMLSchema"/>
+        <namespace kind="extension" prefix="getFieldName" uri="/getFieldName.esql"/>
+        <namespace kind="extension" prefix="getFieldValue" uri="/getFieldValue.esql"/>
+    </namespaces>
+    <generation engine="xquery"/>
+    <mappingDeclaration name="OpenScale_TraditionalML_Mapping_Tests">
+        <input namespace="http://www.ibm.com/iib/msl/json" path="$var2/mb:msg(JSON,assembly,JSON,Properties)">
+            <cast derivedFrom="MB:JSON_TYPE" path="JSON/Data/type('anyType')" qualifier="{http://www.ibm.com/iib/msl/json}traditionalml_source.schema_JsonType" ref="var1"/>
+            <cast path="JSON/spath('Data',2)/data/request/instances/Item/type('anyType')" qualifier="{http://www.ibm.com/iib/msl/json}JSONObject" ref="var2"/>
+        </input>
+        <output namespace="http://openscale.ibm.com/schema" path="mb:msg(OpenScalePayload,assembly,XMLNSC,Properties)" var="ComIbmMessageAssembly_OpenScalePayload"/>
+        <assign value="prediction">
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/response/fields[1]"/>
+        </assign>
+        <move>
+            <input path="JSON/spath('Data',2)/data/transactionid"/>
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/scoring_id"/>
+        </move>
+        <customFunction lang="esql" ref="ConvertEpochToIsoUtc:ConvertEpochToIsoUtc">
+            <input path="JSON/spath('Data',2)/data/response_time_stamp" var="response_time_stamp"/>
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/scoring_timestamp"/>
+            <param name="epochMillis" value="$response_time_stamp"/>
+        </customFunction>
+        <move>
+            <input path="JSON/spath('Data',2)/data/response_time"/>
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/response_time"/>
+        </move>
+        <assign value="v1.0.0">
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/asset_revision"/>
+        </assign>
+        <assign value="false">
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/multiple_records"/>
+        </assign>
+        <move>
+            <input path="JSON/spath('Data',2)/message_id" var="message_id"/>
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/user_id"/>
+        </move>
+        <foreach>
+            <input path="JSON/spath('Data',2)/data/request/instances/spath('Item',2)/any" var="any"/>
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/request/fields"/>
+            <function ref="fn:local-name">
+                <input path="$any/." var="any1"/>
+                <output path="."/>
+                <param name="node" value="$any1"/>
+            </function>
+        </foreach>
+        <foreach>
+            <input path="JSON/spath('Data',2)/data/request/instances/spath('Item',2)/any" var="any2"/>
+            <output path="$ComIbmMessageAssembly_OpenScalePayload/OpenScalePayload/request/values/item"/>
+            <move>
+                <input path="$any2/."/>
+                <output path="."/>
+            </move>
+        </foreach>
+    </mappingDeclaration>
+</mappingRoot>
